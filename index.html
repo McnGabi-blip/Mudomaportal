@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mudoma Primary & Junior School - Management System</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        },
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 0.5rem;
+            height: 0.5rem;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 0.25rem;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Hide scrollbars for navbar clean mobile look */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Print Media Styles for Report Cards and Receipts */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printableArea, #printableArea * {
+                visibility: visible;
+            }
+            #printableArea {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 1rem;
+                background: white;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col selection:bg-brand-500 selection:text-white">
+
+    <!-- Top Branding Header Banner -->
+    <header class="bg-gradient-to-r from-navy-900 via-brand-900 to-navy-900 text-white shadow-lg border-b-4 border-brand-500 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <!-- School Logo & Title -->
+                <div class="flex items-center space-x-3 sm:space-x-4 text-center md:text-left">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-full p-1.5 shadow-md flex items-center justify-center shrink-0 border-2 border-brand-500">
+                        <div class="w-full h-full rounded-full bg-brand-700 flex items-center justify-center text-white font-black text-lg sm:text-xl">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h1 class="text-lg sm:text-2xl font-extrabold tracking-tight text-white uppercase">
+                            Mudoma Primary & Junior School
+                        </h1>
+                        <p class="text-xs sm:text-sm text-brand-100 font-medium flex items-center justify-center md:justify-start gap-2">
+                            <span><i class="fa-solid fa-award text-yellow-400"></i> STRIVE FOR SUCCESS</span>
+                            <span class="hidden sm:inline">•</span>
+                            <span class="hidden sm:inline">Nurturing Future Leaders</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Action Controls & Web App Download Button -->
+                <div class="flex items-center space-x-3">
+                    <button id="pwaInstallBtn" onclick="triggerPWAInstall()" class="bg-brand-500 hover:bg-brand-600 text-white px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold shadow-md transition flex items-center space-x-2 border border-brand-400">
+                        <i class="fa-solid fa-download animate-bounce"></i>
+                        <span>Install Web App</span>
+                    </button>
+                    <div class="text-right text-xs text-slate-300 hidden sm:block border-l border-slate-700 pl-3">
+                        <p class="font-semibold text-white" id="currentDateDisplay">Academic Year 2026</p>
+                        <p class="text-slate-400">Term 3 Active</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <nav class="bg-slate-900/90 backdrop-blur-md border-t border-slate-800 text-slate-200">
+            <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between overflow-x-auto py-2 no-scrollbar">
+                    <div class="flex space-x-1 sm:space-x-2 min-w-max">
+                        <button onclick="switchTab('dashboard')" id="tab-dashboard" class="nav-btn active-tab px-3 py-2 rounded-lg text-xs sm:text-sm font-medium flex items-center space-x-2 transition">
+                            <i class="fa-solid fa-chart-pie"></i>
+                            <span>Dashboard & Directory</span>
+                        </button>
+                        <button onclick="switchTab('fees')" id="tab-fees" class="nav-btn px-3 py-2 rounded-lg text-xs sm:text-sm font-medium flex items-center space-x-2 transition">
+                            <i class="fa-solid fa-file-invoice-dollar"></i>
+                            <span>Fee Management</span>
+                        </button>
+                        <button onclick="switchTab('marks')" id="tab-marks" class="nav-btn px-3 py-2 rounded-lg text-xs sm:text-sm font-medium flex items-center space-x-2 transition">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                            <span>Marks, Assessments & Reports</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Notification Toast Container -->
+    <div id="toastContainer" class="fixed top-4 right-4 sm:top-20 sm:right-5 z-50 flex flex-col space-y-2 w-full max-w-xs sm:max-w-sm px-4 sm:px-0 pointer-events-none"></div>
+
+    <!-- MAIN CONTENT WRAPPER -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- 1. DASHBOARD & STUDENT DIRECTORY VIEW -->
+        <section id="view-dashboard" class="space-y-6">
+            <!-- Dashboard Sub-Navigation Tabs -->
+            <div class="flex border-b border-slate-200 space-x-4 bg-white px-4 py-2 rounded-xl shadow-sm overflow-x-auto no-scrollbar">
+                <button onclick="switchDashboardSubTab('overview')" id="dash-subtab-overview" class="py-2 px-3 text-xs sm:text-sm font-bold border-b-2 border-brand-600 text-brand-600 flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Overview Stats</span>
+                </button>
+                <button onclick="switchDashboardSubTab('directory')" id="dash-subtab-directory" class="py-2 px-3 text-xs sm:text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-user-graduate"></i>
+                    <span>Student Directory</span>
+                </button>
+            </div>
+
+            <!-- SUB-VIEW 1: Overview Stats -->
+            <div id="dashboard-overview-subview" class="space-y-6">
+                <!-- Quick Summary Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between cursor-pointer hover:border-brand-500 transition" onclick="switchDashboardSubTab('directory')">
+                        <div>
+                            <p class="text-xs uppercase font-bold text-slate-400">Total Enrolled</p>
+                            <h3 class="text-2xl font-extrabold text-slate-800 mt-1" id="dashTotalStudents">0</h3>
+                            <p class="text-xs text-brand-600 font-medium mt-1"><i class="fa-solid fa-arrow-up"></i> Active Students</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center text-xl font-bold shrink-0">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs uppercase font-bold text-slate-400">Total Fee Billed</p>
+                            <h3 class="text-2xl font-extrabold text-slate-800 mt-1" id="dashFeesBilled">KSh 0</h3>
+                            <p class="text-xs text-slate-500 font-medium mt-1">Term 1 2026</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl font-bold shrink-0">
+                            <i class="fa-solid fa-wallet"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs uppercase font-bold text-slate-400">Fees Collected</p>
+                            <h3 class="text-2xl font-extrabold text-emerald-600 mt-1" id="dashFeesCollected">KSh 0</h3>
+                            <p class="text-xs text-emerald-600 font-medium mt-1" id="dashCollectionRate"><i class="fa-solid fa-check-circle"></i> 0% Collection Rate</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold shrink-0">
+                            <i class="fa-solid fa-circle-dollar-to-slot"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs uppercase font-bold text-slate-400">Fee Balance</p>
+                            <h3 class="text-2xl font-extrabold text-amber-600 mt-1" id="dashFeesBalance">KSh 0</h3>
+                            <p class="text-xs text-amber-600 font-medium mt-1"><i class="fa-solid fa-clock"></i> Pending Collections</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-bold shrink-0">
+                            <i class="fa-solid fa-hand-holding-dollar"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grade Quick Action Panels -->
+                <div class="bg-white rounded-xl border border-slate-200 p-4 sm:p-6 shadow-sm">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4 mb-6">
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-800">Mudoma School Sections Overview</h2>
+                            <p class="text-sm text-slate-500">Select any grade section to manage students directly in the Directory.</p>
+                        </div>
+                        <span class="px-3 py-1 bg-brand-100 text-brand-800 rounded-full text-xs font-semibold self-start sm:self-auto">12 Grade Levels</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Pre-Primary -->
+                        <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-sm">
+                                    <i class="fa-solid fa-shapes"></i>
+                                </div>
+                                <h3 class="font-bold text-slate-800">Pre-Primary (ECD)</h3>
+                            </div>
+                            <div class="space-y-2">
+                                <button onclick="directNavigateToGrade('Playgroup')" class="w-full text-left bg-white p-2.5 rounded-lg border border-slate-200 hover:border-brand-500 hover:shadow-sm transition flex justify-between items-center text-sm">
+                                    <span class="font-medium text-slate-700">Playgroup</span>
+                                    <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
+                                </button>
+                                <button onclick="directNavigateToGrade('PP1')" class="w-full text-left bg-white p-2.5 rounded-lg border border-slate-200 hover:border-brand-500 hover:shadow-sm transition flex justify-between items-center text-sm">
+                                    <span class="font-medium text-slate-700">PP1 (Pre-Primary 1)</span>
+                                    <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
+                                </button>
+                                <button onclick="directNavigateToGrade('PP2')" class="w-full text-left bg-white p-2.5 rounded-lg border border-slate-200 hover:border-brand-500 hover:shadow-sm transition flex justify-between items-center text-sm">
+                                    <span class="font-medium text-slate-700">PP2 (Pre-Primary 2)</span>
+                                    <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Lower & Upper Primary -->
+                        <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm">
+                                    <i class="fa-solid fa-book-open"></i>
+                                </div>
+                                <h3 class="font-bold text-slate-800">Primary School (Grades 1-6)</h3>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="directNavigateToGrade('Grade 1')" class="bg-white p-2 rounded-lg border border-slate-200 hover:border-brand-500 hover:shadow-sm text-xs font-medium text-slate-700 text-center transition">Grade 1</button>
+                                <button onclick="directNavigateToGrade('Grade 2')" class="bg-white p-2 rounded-lg border border-slate-200 hover:border-brand-500 hover:shadow-sm text-xs font-medium text-slate-700 text-center transition">Grade 2</button>
+                                <button onclick="directNavigateToGrade('Grade 3')" class="bg-white p-2 rounded-lg border border-slate-200 hover:border-brand-500 hover:shadow-sm text-xs font-medium text-slate-700 text-center transition">Grade 3</button>
+                                <button onclick="directNavigateToGrade('Grade 4')" class="bg-white p-2 rounded-lg border border-slate-200 hover:border-brand-500 hover:shadow-sm text-xs font-medium text-slate-700 text-center transition">Grade 4</button>
+                                <button onclick="directNavigateToGrade('Grade 5')" class="bg-white p-2 rounded-lg border border-slate-200 hover:border-brand-500 hover:shadow-sm text-xs font-medium text-slate-700 text-center transition">Grade 5</button>
+                                <button onclick="directNavigateToGrade('Grade 6')" class="bg-white p-2 rounded-lg border border-slate-200 hover:border-brand-500 hover:shadow-sm text-xs font-medium text-slate-700 text-center transition">Grade 6</button>
+                            </div>
+                        </div>
+
+                        <!-- Junior Secondary -->
+                        <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm">
+                                    <i class="fa-solid fa-microscope"></i>
+                                </div>
+                                <h3 class="font-bold text-slate-800">Junior Secondary (JSS)</h3>
+                            </div>
+                            <div class="space-y-2">
+                                <button onclick="directNavigateToGrade('Grade 7')" class="w-full text-left bg-white p-2.5 rounded-lg border border-slate-200 hover:border-brand-500 hover:shadow-sm transition flex justify-between items-center text-sm">
+                                    <span class="font-medium text-slate-700">Grade 7 JSS</span>
+                                    <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
+                                </button>
+                                <button onclick="directNavigateToGrade('Grade 8')" class="w-full text-left bg-white p-2.5 rounded-lg border border-slate-200 hover:border-brand-500 hover:shadow-sm transition flex justify-between items-center text-sm">
+                                    <span class="font-medium text-slate-700">Grade 8 JSS</span>
+                                    <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
+                                </button>
+                                <button onclick="directNavigateToGrade('Grade 9')" class="w-full text-left bg-white p-2.5 rounded-lg border border-slate-200 hover:border-brand-500 hover:shadow-sm transition flex justify-between items-center text-sm">
+                                    <span class="font-medium text-slate-700">Grade 9 JSS</span>
+                                    <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUB-VIEW 2: Student Directory -->
+            <div id="dashboard-directory-subview" class="hidden space-y-6">
+                <!-- Grid Cards View -->
+                <div id="student-grades-grid-container" class="space-y-4">
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-folder-open text-brand-600"></i> Student Directory - Select Class Grade
+                            </h2>
+                            <p class="text-sm text-slate-500">Click on any grade card below to enter that class's full student directory directly.</p>
+                        </div>
+                        <button onclick="openAddStudentModal()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow transition flex items-center justify-center space-x-2 w-full md:w-auto">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Add New Student</span>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="studentGradeFolderCards">
+                        <!-- Rendered dynamically by JS -->
+                    </div>
+                </div>
+
+                <!-- Specific Grade View -->
+                <div id="student-grade-detail-container" class="hidden space-y-4">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="flex items-center space-x-3">
+                            <button onclick="closeGradeStudentView()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2 rounded-lg text-sm font-bold transition flex items-center space-x-2 border border-slate-300 shrink-0">
+                                <i class="fa-solid fa-arrow-left"></i>
+                                <span class="hidden sm:inline">Back to Directory</span>
+                                <span class="sm:hidden">Back</span>
+                            </button>
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-800" id="selectedStudentGradeTitle">Grade View</h2>
+                                <p class="text-xs text-slate-500" id="selectedStudentGradeSub">Class Roster & Information</p>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                            <div class="relative flex-1 sm:w-64">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                                <input type="text" id="studentSearchInput" onkeyup="filterStudentTable()" placeholder="Search name or adm no..." class="w-full pl-8 pr-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            </div>
+                            <button onclick="openAddStudentModal()" class="bg-brand-600 hover:bg-brand-700 text-white px-3.5 py-2 sm:py-1.5 rounded-lg text-xs font-semibold shadow transition flex items-center justify-center space-x-1 shrink-0">
+                                <i class="fa-solid fa-user-plus"></i>
+                                <span>Add Student</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse min-w-[600px]">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs uppercase font-bold tracking-wider">
+                                        <th class="py-3 px-4">Adm No</th>
+                                        <th class="py-3 px-4">Full Student Name</th>
+                                        <th class="py-3 px-4">Gender</th>
+                                        <th class="py-3 px-4">Stream</th>
+                                        <th class="py-3 px-4">Parent/Guardian</th>
+                                        <th class="py-3 px-4">Parent Phone</th>
+                                        <th class="py-3 px-4 text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="studentTableBody" class="divide-y divide-slate-100 text-sm font-medium text-slate-700">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. FEE MANAGEMENT VIEW -->
+        <section id="view-fees" class="hidden space-y-6">
+            <!-- Grade Fee Overview Grid -->
+            <div id="fee-grades-grid-container" class="space-y-4">
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-file-invoice-dollar text-emerald-600"></i> Fee Management - Select Class Grade
+                        </h2>
+                        <p class="text-sm text-slate-500">Select a grade folder to manage fee structures, payments, and balances directly.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="feeGradeFolderCards">
+                    <!-- Dynamic cards -->
+                </div>
+            </div>
+
+            <!-- Specific Grade Fee View -->
+            <div id="fee-grade-detail-container" class="hidden space-y-4">
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex items-center space-x-3">
+                        <button onclick="closeGradeFeeView()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2 rounded-lg text-sm font-bold transition flex items-center space-x-2 border border-slate-300 shrink-0">
+                            <i class="fa-solid fa-arrow-left"></i>
+                            <span class="hidden sm:inline">Back to Directory</span>
+                            <span class="sm:hidden">Back</span>
+                        </button>
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-800" id="selectedFeeGradeTitle">Grade Fee Ledger</h2>
+                            <p class="text-xs text-slate-500" id="selectedFeeGradeSub">Fee Status & Receipts</p>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                        <div class="flex items-center space-x-2 bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5">
+                            <span class="text-xs font-bold text-slate-600 shrink-0">Fee (KSh):</span>
+                            <input type="number" id="gradeFeeInput" min="0" class="w-24 text-xs font-bold bg-white border border-slate-300 rounded px-2 py-1 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                            <button onclick="saveGradeFeeStructure()" class="bg-brand-600 hover:bg-brand-700 text-white px-2.5 py-1 rounded text-xs font-bold transition shrink-0">
+                                <i class="fa-solid fa-floppy-disk"></i> Save
+                            </button>
+                        </div>
+                        <select id="feeStatusFilter" onchange="filterFeeTable()" class="text-xs border border-slate-300 rounded-lg px-3 py-2 bg-white font-medium focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            <option value="ALL">All Payment Statuses</option>
+                            <option value="PAID">Fully Paid</option>
+                            <option value="PARTIAL">Partial Balance</option>
+                            <option value="UNPAID">Zero Paid</option>
+                        </select>
+                        <button onclick="openPaymentModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-lg text-xs font-bold shadow transition flex items-center justify-center space-x-1 shrink-0">
+                            <i class="fa-solid fa-plus-circle"></i>
+                            <span>Record Payment</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse min-w-[650px]">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs uppercase font-bold tracking-wider">
+                                    <th class="py-3 px-4">Adm No</th>
+                                    <th class="py-3 px-4">Student Name</th>
+                                    <th class="py-3 px-4">Term Fee (KSh)</th>
+                                    <th class="py-3 px-4">Amount Paid</th>
+                                    <th class="py-3 px-4">Balance</th>
+                                    <th class="py-3 px-4">Status</th>
+                                    <th class="py-3 px-4 text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="feeTableBody" class="divide-y divide-slate-100 text-sm font-medium text-slate-700">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. MARKS, ASSESSMENTS & REPORT CARDS VIEW -->
+        <section id="view-marks" class="hidden space-y-6">
+
+            <!-- Sub-Navigation for Marks vs Report Cards -->
+            <div class="flex border-b border-slate-200 space-x-4 bg-white px-4 py-2 rounded-xl shadow-sm overflow-x-auto no-scrollbar">
+                <button onclick="switchMarksSubTab('entry')" id="marks-subtab-entry" class="py-2 px-3 text-xs sm:text-sm font-bold border-b-2 border-brand-600 text-brand-600 flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span>Marks & Assessments Entry</span>
+                </button>
+                <button onclick="switchMarksSubTab('reports')" id="marks-subtab-reports" class="py-2 px-3 text-xs sm:text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-file-lines"></i>
+                    <span>Student Report Cards</span>
+                </button>
+            </div>
+
+            <!-- SUB-VIEW 1: Marks & Assessments Entry -->
+            <div id="marks-entry-subview" class="space-y-6">
+                <!-- Grade Selection Grid -->
+                <div id="marks-grades-grid-container" class="space-y-4">
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-pen-to-square text-blue-600"></i> Marks & Assessments Entry
+                            </h2>
+                            <p class="text-sm text-slate-500">Select a grade folder to input Assessment 1, Assessment 2, and Exam scores.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="marksGradeFolderCards">
+                        <!-- Dynamic cards -->
+                    </div>
+                </div>
+
+                <!-- Specific Grade Marks View -->
+                <div id="marks-grade-detail-container" class="hidden space-y-4">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                        <div class="flex items-center space-x-3">
+                            <button onclick="closeGradeMarksView()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2 rounded-lg text-sm font-bold transition flex items-center space-x-2 border border-slate-300 shrink-0">
+                                <i class="fa-solid fa-arrow-left"></i>
+                                <span class="hidden sm:inline">Back to Directory</span>
+                                <span class="sm:hidden">Back</span>
+                            </button>
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-800" id="selectedMarksGradeTitle">Grade Marks</h2>
+                                <p class="text-xs text-slate-500">Continuous Assessment & End Term Marks Input</p>
+                            </div>
+                        </div>
+
+                        <!-- Subject & Term Selection Controls -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full lg:w-auto">
+                            <div>
+                                <label class="text-[10px] font-bold uppercase text-slate-400 block">Subject</label>
+                                <select id="marksSubjectSelect" onchange="renderMarksTable()" class="w-full text-xs font-semibold border border-slate-300 rounded-lg px-3 py-2 sm:py-1.5 bg-white focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                                    <option value="Mathematics">Mathematics</option>
+                                    <option value="English">English Language</option>
+                                    <option value="Kiswahili">Kiswahili / Insha</option>
+                                    <option value="Integrated Science">Integrated Science</option>
+                                    <option value="Social Studies">Social Studies</option>
+                                    <option value="Pre-Technical Studies">Pre-Technical Studies</option>
+                                    <option value="Creative Arts & Sports">Creative Arts & Sports</option>
+                                    <option value="Religious Education">Religious Education</option>
+                                    <option value="Agriculture & Nutrition">Agriculture & Nutrition</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="text-[10px] font-bold uppercase text-slate-400 block">Term</label>
+                                <select id="marksTermSelect" onchange="renderMarksTable()" class="w-full text-xs font-semibold border border-slate-300 rounded-lg px-3 py-2 sm:py-1.5 bg-white focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                                    <option value="Term 1">Term 1 2026</option>
+                                    <option value="Term 2">Term 2 2026</option>
+                                    <option value="Term 3">Term 3 2026</option>
+                                </select>
+                            </div>
+
+                            <div class="sm:self-end">
+                                <button onclick="saveCurrentMarks()" class="w-full bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 sm:py-1.5 rounded-lg text-xs font-bold shadow transition flex items-center justify-center space-x-1">
+                                    <i class="fa-solid fa-floppy-disk"></i>
+                                    <span>Save All Marks</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse min-w-[600px]">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs uppercase font-bold tracking-wider">
+                                        <th class="py-3 px-4">Adm No</th>
+                                        <th class="py-3 px-4">Student Name</th>
+                                        <th class="py-3 px-4 min-w-[6rem]">Ass 1 (30%)</th>
+                                        <th class="py-3 px-4 min-w-[6rem]">Ass 2 (30%)</th>
+                                        <th class="py-3 px-4 min-w-[6rem]">Exam (40%)</th>
+                                        <th class="py-3 px-4 min-w-[6rem] text-center">Total (100%)</th>
+                                        <th class="py-3 px-4 text-center">Grade</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="marksTableBody" class="divide-y divide-slate-100 text-sm font-medium text-slate-700">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUB-VIEW 2: Report Cards Generator -->
+            <div id="marks-reports-subview" class="hidden space-y-6">
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 no-print">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-file-lines text-purple-600"></i> Student Report Card Generator
+                        </h2>
+                        <p class="text-sm text-slate-500">Generate and print official termly report cards with percentage scores and traditional letter grades.</p>
+                    </div>
+                    <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition flex items-center justify-center space-x-2 w-full md:w-auto">
+                        <i class="fa-solid fa-print"></i>
+                        <span>Print Report Card</span>
+                    </button>
+                </div>
+
+                <!-- Selection Filters (no-print) -->
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm grid grid-cols-1 sm:grid-cols-3 gap-4 no-print">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Select Grade</label>
+                        <select id="reportGradeSelect" onchange="populateReportStudentDropdown()" class="w-full text-sm font-semibold border border-slate-300 rounded-lg p-2 bg-white focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            <!-- Options generated JS -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Select Student</label>
+                        <select id="reportStudentSelect" onchange="generateSelectedReportCard()" class="w-full text-sm font-semibold border border-slate-300 rounded-lg p-2 bg-white focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            <!-- Options generated JS -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Term</label>
+                        <select id="reportTermSelect" onchange="generateSelectedReportCard()" class="w-full text-sm font-semibold border border-slate-300 rounded-lg p-2 bg-white focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            <option value="Term 1">Term 1 2026</option>
+                            <option value="Term 2">Term 2 2026</option>
+                            <option value="Term 3">Term 3 2026</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Printable Report Card Canvas -->
+                <div id="printableArea" class="bg-white p-4 sm:p-6 md:p-10 rounded-xl border border-slate-200 shadow-lg max-w-4xl mx-auto space-y-6">
+                    <!-- Dynamic content loaded via JS -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL: ADD / EDIT STUDENT -->
+    <div id="studentModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto transform transition-all">
+            <div class="bg-slate-900 text-white p-4 flex items-center justify-between border-b border-slate-800 sticky top-0 z-10">
+                <h3 class="font-bold text-base flex items-center space-x-2" id="studentModalTitle">
+                    <i class="fa-solid fa-user-plus text-brand-400"></i>
+                    <span>Add New Student</span>
+                </h3>
+                <button onclick="closeStudentModal()" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="studentForm" onsubmit="handleSaveStudent(event)" class="p-4 sm:p-6 space-y-4">
+                <input type="hidden" id="editStudentId">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Full Name</label>
+                    <input type="text" id="modalStudentName" required placeholder="e.g. Samuel Mutua" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Admission No</label>
+                        <input type="text" id="modalStudentAdm" required placeholder="MGR-0000" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Gender</label>
+                        <select id="modalStudentGender" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Grade / Class</label>
+                        <select id="modalStudentGrade" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            <!-- Populated JS -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Stream</label>
+                        <input type="text" id="modalStudentStream" placeholder="e.g. Red / East" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Parent/Guardian Name</label>
+                        <input type="text" id="modalParentName" placeholder="e.g. Mary Mutua" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Parent Phone</label>
+                        <input type="text" id="modalParentPhone" placeholder="0712345678" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    </div>
+                </div>
+                <div class="pt-2 flex justify-end space-x-2">
+                    <button type="button" onclick="closeStudentModal()" class="px-4 py-2 rounded-lg text-sm text-slate-600 font-semibold bg-slate-100 hover:bg-slate-200">Cancel</button>
+                    <button type="submit" class="px-4 py-2 rounded-lg text-sm font-bold bg-brand-600 hover:bg-brand-700 text-white shadow">Save Student</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: RECORD FEE PAYMENT -->
+    <div id="paymentModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto transform transition-all">
+            <div class="bg-emerald-800 text-white p-4 flex items-center justify-between sticky top-0 z-10">
+                <h3 class="font-bold text-base flex items-center space-x-2">
+                    <i class="fa-solid fa-receipt"></i>
+                    <span>Record Fee Payment</span>
+                </h3>
+                <button onclick="closePaymentModal()" class="text-emerald-200 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="paymentForm" onsubmit="handleSavePayment(event)" class="p-4 sm:p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Select Student</label>
+                    <select id="paymentStudentSelect" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        <!-- Populated JS -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Amount Paid (KSh)</label>
+                    <input type="number" id="paymentAmount" required min="100" placeholder="e.g. 5000" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Payment Method</label>
+                    <select id="paymentMethod" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        <option value="M-PESA">M-PESA Express</option>
+                        <option value="Bank Deposit">Bank Direct Deposit</option>
+                        <option value="Cash">Cash at Bursar Office</option>
+                        <option value="Cheque">Bankers Cheque</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Reference / Receipt No.</label>
+                    <input type="text" id="paymentRef" placeholder="e.g. QKH7823901" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                </div>
+                <div class="pt-2 flex justify-end space-x-2">
+                    <button type="button" onclick="closePaymentModal()" class="px-4 py-2 rounded-lg text-sm text-slate-600 font-semibold bg-slate-100 hover:bg-slate-200">Cancel</button>
+                    <button type="submit" class="px-4 py-2 rounded-lg text-sm font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow">Record & Issue Receipt</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA STORE ---
+        const GRADES = [
+            'Playgroup', 'PP1', 'PP2', 
+            'Grade 1', 'Grade 2', 'Grade 3', 
+            'Grade 4', 'Grade 5', 'Grade 6', 
+            'Grade 7', 'Grade 8', 'Grade 9'
+        ];
+
+        let feeStructures = JSON.parse(localStorage.getItem('mudoma_fees')) || {
+            'Playgroup': 8500, 'PP1': 8500, 'PP2': 8500,
+            'Grade 1': 10500, 'Grade 2': 10500, 'Grade 3': 10500,
+            'Grade 4': 12000, 'Grade 5': 12000, 'Grade 6': 12000,
+            'Grade 7': 14500, 'Grade 8': 14500, 'Grade 9': 14500
+        };
+
+        function getGradeFeeStructure(grade) {
+            return feeStructures[grade] !== undefined ? feeStructures[grade] : 10000;
+        }
+
+        function saveGradeFeeStructure() {
+            if (!activeFeeGrade) return;
+            const newFee = Number(document.getElementById('gradeFeeInput').value) || 0;
+            feeStructures[activeFeeGrade] = newFee;
+            saveData();
+            showToast(`Updated fee structure for ${activeFeeGrade} to KSh ${newFee.toLocaleString()}`, 'success');
+            openGradeFeeView(activeFeeGrade);
+            updateDashboardStats();
+        }
+
+        let studentsData = JSON.parse(localStorage.getItem('mudoma_students')) || [
+            { id: 1, adm: 'ADM-1001', name: 'Amina Wangari', gender: 'Female', grade: 'Grade 1', stream: 'Blue', parent: 'Grace Wangari', phone: '0712345671', paid: 10500 },
+            { id: 2, adm: 'ADM-1002', name: 'Brian Ochieng', gender: 'Male', grade: 'Grade 1', stream: 'Blue', parent: 'Peter Ochieng', phone: '0722345672', paid: 7000 },
+            { id: 3, adm: 'ADM-1003', name: 'Faith Cherono', gender: 'Female', grade: 'Grade 2', stream: 'Red', parent: 'David Kimutai', phone: '0732345673', paid: 10500 },
+            { id: 4, adm: 'ADM-1004', name: 'Kevin Kiprop', gender: 'Male', grade: 'Grade 2', stream: 'Red', parent: 'Sarah Kiprop', phone: '0742345674', paid: 4000 },
+            { id: 5, adm: 'ADM-1005', name: 'Joy Wambui', gender: 'Female', grade: 'Grade 5', stream: 'East', parent: 'James Njuguna', phone: '0752345675', paid: 12000 },
+            { id: 6, adm: 'ADM-1006', name: 'Emmanuel Juma', gender: 'Male', grade: 'Grade 5', stream: 'West', parent: 'Alice Juma', phone: '0762345676', paid: 8000 },
+            { id: 7, adm: 'ADM-1007', name: 'Mercy Achieng', gender: 'Female', grade: 'Grade 8', stream: 'Alpha', parent: 'John Otieno', phone: '0772345677', paid: 14500 },
+            { id: 8, adm: 'ADM-1008', name: 'Dennis Kimani', gender: 'Male', grade: 'Grade 8', stream: 'Beta', parent: 'Hannah Kimani', phone: '0782345678', paid: 10000 }
+        ];
+
+        let marksData = JSON.parse(localStorage.getItem('mudoma_marks')) || {
+            1: { "Mathematics": { a1: 26, a2: 25, exam: 36 }, "English": { a1: 24, a2: 28, exam: 35 } },
+            2: { "Mathematics": { a1: 18, a2: 20, exam: 25 }, "English": { a1: 22, a2: 21, exam: 30 } },
+            5: { "Mathematics": { a1: 28, a2: 29, exam: 38 }, "English": { a1: 27, a2: 26, exam: 37 } },
+            7: { "Mathematics": { a1: 29, a2: 30, exam: 39 }, "English": { a1: 28, a2: 29, exam: 38 } }
+        };
+
+        let activeStudentGrade = null;
+        let activeFeeGrade = null;
+        let activeMarksGrade = null;
+
+        // TRADITIONAL GRADING LOGIC (A, B, C, D, E)
+        function calculateGradeLetter(score) {
+            if (score >= 80) return { letter: 'A', class: 'bg-emerald-100 text-emerald-800' };
+            if (score >= 65) return { letter: 'B', class: 'bg-blue-100 text-blue-800' };
+            if (score >= 50) return { letter: 'C', class: 'bg-yellow-100 text-yellow-800' };
+            if (score >= 40) return { letter: 'D', class: 'bg-amber-100 text-amber-800' };
+            return { letter: 'E', class: 'bg-red-100 text-red-800' };
+        }
+
+        // --- NAVIGATION LOGIC ---
+        function switchTab(tabId) {
+            document.querySelectorAll('section[id^="view-"]').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('bg-brand-600', 'text-white');
+                b.classList.add('text-slate-300');
+            });
+
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-brand-600', 'text-white');
+                activeBtn.classList.remove('text-slate-300');
+            }
+
+            if (tabId === 'dashboard') {
+                updateDashboardStats();
+                renderStudentGradeCards();
+            }
+            if (tabId === 'fees') renderFeeGradeCards();
+            if (tabId === 'marks') {
+                renderMarksGradeCards();
+                populateReportGradeDropdown();
+            }
+        }
+
+        // Dashboard Sub-Tab Toggle
+        function switchDashboardSubTab(sub) {
+            const overviewView = document.getElementById('dashboard-overview-subview');
+            const directoryView = document.getElementById('dashboard-directory-subview');
+            const btnOverview = document.getElementById('dash-subtab-overview');
+            const btnDirectory = document.getElementById('dash-subtab-directory');
+
+            if (sub === 'overview') {
+                overviewView.classList.remove('hidden');
+                directoryView.classList.add('hidden');
+                btnOverview.className = 'py-2 px-3 text-xs sm:text-sm font-bold border-b-2 border-brand-600 text-brand-600 flex items-center space-x-2 whitespace-nowrap';
+                btnDirectory.className = 'py-2 px-3 text-xs sm:text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center space-x-2 whitespace-nowrap';
+            } else {
+                overviewView.classList.add('hidden');
+                directoryView.classList.remove('hidden');
+                btnDirectory.className = 'py-2 px-3 text-xs sm:text-sm font-bold border-b-2 border-brand-600 text-brand-600 flex items-center space-x-2 whitespace-nowrap';
+                btnOverview.className = 'py-2 px-3 text-xs sm:text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center space-x-2 whitespace-nowrap';
+                renderStudentGradeCards();
+            }
+        }
+
+        // Marks Sub-Tab Toggle
+        function switchMarksSubTab(sub) {
+            const entryView = document.getElementById('marks-entry-subview');
+            const reportsView = document.getElementById('marks-reports-subview');
+            const btnEntry = document.getElementById('marks-subtab-entry');
+            const btnReports = document.getElementById('marks-subtab-reports');
+
+            if (sub === 'entry') {
+                entryView.classList.remove('hidden');
+                reportsView.classList.add('hidden');
+                btnEntry.className = 'py-2 px-3 text-xs sm:text-sm font-bold border-b-2 border-brand-600 text-brand-600 flex items-center space-x-2 whitespace-nowrap';
+                btnReports.className = 'py-2 px-3 text-xs sm:text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center space-x-2 whitespace-nowrap';
+            } else {
+                entryView.classList.add('hidden');
+                reportsView.classList.remove('hidden');
+                btnReports.className = 'py-2 px-3 text-xs sm:text-sm font-bold border-b-2 border-brand-600 text-brand-600 flex items-center space-x-2 whitespace-nowrap';
+                btnEntry.className = 'py-2 px-3 text-xs sm:text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center space-x-2 whitespace-nowrap';
+                populateReportGradeDropdown();
+            }
+        }
+
+        // Direct navigation from overview
+        function directNavigateToGrade(grade) {
+            switchDashboardSubTab('directory');
+            openGradeStudentView(grade);
+        }
+
+        // --- STUDENT DIRECTORY FUNCTIONS ---
+        function openGradeStudentView(grade) {
+            activeStudentGrade = grade;
+            document.getElementById('student-grades-grid-container').classList.add('hidden');
+            document.getElementById('student-grade-detail-container').classList.remove('hidden');
+            
+            document.getElementById('selectedStudentGradeTitle').innerText = `${grade} - Student Directory`;
+            document.getElementById('selectedStudentGradeSub').innerText = `Viewing all registered students in ${grade}`;
+            
+            renderStudentTable();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function closeGradeStudentView() {
+            activeStudentGrade = null;
+            document.getElementById('student-grade-detail-container').classList.add('hidden');
+            document.getElementById('student-grades-grid-container').classList.remove('hidden');
+            renderStudentGradeCards();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderStudentGradeCards() {
+            const container = document.getElementById('studentGradeFolderCards');
+            container.innerHTML = '';
+
+            GRADES.forEach(grade => {
+                const count = studentsData.filter(s => s.grade === grade).length;
+                const card = document.createElement('div');
+                card.className = "bg-white p-5 rounded-xl border border-slate-200 hover:border-brand-500 hover:shadow-md cursor-pointer transition flex flex-col justify-between group";
+                card.onclick = () => openGradeStudentView(grade);
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-10 h-10 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center font-bold group-hover:bg-brand-600 group-hover:text-white transition">
+                                <i class="fa-solid fa-folder"></i>
+                            </span>
+                            <span class="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded-full font-bold">${count} Enrolled</span>
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-lg group-hover:text-brand-600 transition">${grade}</h3>
+                        <p class="text-xs text-slate-500 mt-1">Class Directory & Contact Profiles</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-brand-600">
+                        <span>Open Folder</span>
+                        <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition"></i>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderStudentTable() {
+            if (!activeStudentGrade) return;
+            const tbody = document.getElementById('studentTableBody');
+            tbody.innerHTML = '';
+
+            const list = studentsData.filter(s => s.grade === activeStudentGrade);
+
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400">No students enrolled in ${activeStudentGrade} yet. Click "Add Student" to enroll.</td></tr>`;
+                return;
+            }
+
+            list.forEach(s => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-bold text-brand-700">${s.adm}</td>
+                    <td class="py-3 px-4 font-semibold text-slate-800">${s.name}</td>
+                    <td class="py-3 px-4">${s.gender}</td>
+                    <td class="py-3 px-4">${s.stream || 'A'}</td>
+                    <td class="py-3 px-4">${s.parent || 'N/A'}</td>
+                    <td class="py-3 px-4">${s.phone || 'N/A'}</td>
+                    <td class="py-3 px-4 text-center">
+                        <div class="flex items-center justify-center space-x-2">
+                            <button onclick="editStudent(${s.id})" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteStudent(${s.id})" class="p-1.5 text-red-600 hover:bg-red-50 rounded" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterStudentTable() {
+            const query = document.getElementById('studentSearchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#studentTableBody tr');
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
+
+        // --- FEE MANAGEMENT FUNCTIONS ---
+        function openGradeFeeView(grade) {
+            activeFeeGrade = grade;
+            document.getElementById('fee-grades-grid-container').classList.add('hidden');
+            document.getElementById('fee-grade-detail-container').classList.remove('hidden');
+            
+            document.getElementById('selectedFeeGradeTitle').innerText = `${grade} - Fee Ledger`;
+            const currentFee = getGradeFeeStructure(grade);
+            document.getElementById('selectedFeeGradeSub').innerText = `Term 1 Fee structure: KSh ${currentFee.toLocaleString()}`;
+            document.getElementById('gradeFeeInput').value = currentFee;
+            
+            renderFeeTable();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function closeGradeFeeView() {
+            activeFeeGrade = null;
+            document.getElementById('fee-grade-detail-container').classList.add('hidden');
+            document.getElementById('fee-grades-grid-container').classList.remove('hidden');
+            renderFeeGradeCards();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderFeeGradeCards() {
+            const container = document.getElementById('feeGradeFolderCards');
+            container.innerHTML = '';
+
+            GRADES.forEach(grade => {
+                const feePerStudent = getGradeFeeStructure(grade);
+                const students = studentsData.filter(s => s.grade === grade);
+                const totalBilled = students.length * feePerStudent;
+                const totalCollected = students.reduce((acc, curr) => acc + (curr.paid || 0), 0);
+                const balance = Math.max(0, totalBilled - totalCollected);
+
+                const card = document.createElement('div');
+                card.className = "bg-white p-5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:shadow-md cursor-pointer transition flex flex-col justify-between group";
+                card.onclick = () => openGradeFeeView(grade);
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold group-hover:bg-emerald-600 group-hover:text-white transition">
+                                <i class="fa-solid fa-file-invoice-dollar"></i>
+                            </span>
+                            <span class="text-xs bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full font-bold">KSh ${feePerStudent.toLocaleString()}</span>
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-lg group-hover:text-emerald-600 transition">${grade}</h3>
+                        <div class="mt-3 space-y-1 text-xs">
+                            <div class="flex justify-between text-slate-500">
+                                <span>Collected:</span>
+                                <span class="font-bold text-emerald-600">KSh ${totalCollected.toLocaleString()}</span>
+                            </div>
+                            <div class="flex justify-between text-slate-500">
+                                <span>Pending:</span>
+                                <span class="font-bold text-amber-600">KSh ${balance.toLocaleString()}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-emerald-600">
+                        <span>Open Ledger</span>
+                        <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition"></i>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderFeeTable() {
+            if (!activeFeeGrade) return;
+            const tbody = document.getElementById('feeTableBody');
+            tbody.innerHTML = '';
+
+            const feeAmount = getGradeFeeStructure(activeFeeGrade);
+            const list = studentsData.filter(s => s.grade === activeFeeGrade);
+
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400">No students enrolled in ${activeFeeGrade}.</td></tr>`;
+                return;
+            }
+
+            list.forEach(s => {
+                const paid = s.paid || 0;
+                const balance = Math.max(0, feeAmount - paid);
+                
+                let statusBadge = '';
+                if (balance === 0 && paid > 0) {
+                    statusBadge = `<span class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full text-xs font-bold"><i class="fa-solid fa-check-circle"></i> Fully Paid</span>`;
+                } else if (paid > 0) {
+                    statusBadge = `<span class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full text-xs font-bold"><i class="fa-solid fa-clock"></i> Partial</span>`;
+                } else {
+                    statusBadge = `<span class="bg-red-100 text-red-800 px-2.5 py-1 rounded-full text-xs font-bold"><i class="fa-solid fa-triangle-exclamation"></i> Unpaid</span>`;
+                }
+
+                const tr = document.createElement('tr');
+                tr.setAttribute('data-status', balance === 0 && paid > 0 ? 'PAID' : (paid > 0 ? 'PARTIAL' : 'UNPAID'));
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-bold text-slate-700">${s.adm}</td>
+                    <td class="py-3 px-4 font-semibold text-slate-800">${s.name}</td>
+                    <td class="py-3 px-4">KSh ${feeAmount.toLocaleString()}</td>
+                    <td class="py-3 px-4 font-bold text-emerald-600">KSh ${paid.toLocaleString()}</td>
+                    <td class="py-3 px-4 font-bold ${balance > 0 ? 'text-amber-600' : 'text-slate-400'}">KSh ${balance.toLocaleString()}</td>
+                    <td class="py-3 px-4">${statusBadge}</td>
+                    <td class="py-3 px-4 text-center">
+                        <button onclick="quickPay(${s.id})" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg text-xs font-bold border border-emerald-200 transition">
+                            <i class="fa-solid fa-plus"></i> Pay
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterFeeTable() {
+            const filter = document.getElementById('feeStatusFilter').value;
+            const rows = document.querySelectorAll('#feeTableBody tr');
+            rows.forEach(row => {
+                const status = row.getAttribute('data-status');
+                if (filter === 'ALL' || status === filter) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // --- MARKS & REPORT CARDS FUNCTIONS ---
+        function openGradeMarksView(grade) {
+            activeMarksGrade = grade;
+            document.getElementById('marks-grades-grid-container').classList.add('hidden');
+            document.getElementById('marks-grade-detail-container').classList.remove('hidden');
+            
+            document.getElementById('selectedMarksGradeTitle').innerText = `${grade} - Marks & Assessments`;
+            
+            renderMarksTable();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function closeGradeMarksView() {
+            activeMarksGrade = null;
+            document.getElementById('marks-grade-detail-container').classList.add('hidden');
+            document.getElementById('marks-grades-grid-container').classList.remove('hidden');
+            renderMarksGradeCards();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderMarksGradeCards() {
+            const container = document.getElementById('marksGradeFolderCards');
+            container.innerHTML = '';
+
+            GRADES.forEach(grade => {
+                const count = studentsData.filter(s => s.grade === grade).length;
+                const card = document.createElement('div');
+                card.className = "bg-white p-5 rounded-xl border border-slate-200 hover:border-blue-500 hover:shadow-md cursor-pointer transition flex flex-col justify-between group";
+                card.onclick = () => openGradeMarksView(grade);
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold group-hover:bg-blue-600 group-hover:text-white transition">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </span>
+                            <span class="text-xs bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full font-bold">${count} Students</span>
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-lg group-hover:text-blue-600 transition">${grade}</h3>
+                        <p class="text-xs text-slate-500 mt-1">Continuous Assessments & Exam Entry</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-blue-600">
+                        <span>Enter Marks</span>
+                        <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition"></i>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderMarksTable() {
+            if (!activeMarksGrade) return;
+            const tbody = document.getElementById('marksTableBody');
+            tbody.innerHTML = '';
+
+            const subject = document.getElementById('marksSubjectSelect').value;
+            const students = studentsData.filter(s => s.grade === activeMarksGrade);
+
+            if (students.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400">No students enrolled in ${activeMarksGrade}.</td></tr>`;
+                return;
+            }
+
+            students.forEach(s => {
+                const m = (marksData[s.id] && marksData[s.id][subject]) ? marksData[s.id][subject] : { a1: 0, a2: 0, exam: 0 };
+                const total = (Number(m.a1) || 0) + (Number(m.a2) || 0) + (Number(m.exam) || 0);
+                
+                const gradeInfo = calculateGradeLetter(total);
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-bold text-slate-700">${s.adm}</td>
+                    <td class="py-3 px-4 font-semibold text-slate-800">${s.name}</td>
+                    <td class="py-3 px-4">
+                        <input type="number" max="30" min="0" value="${m.a1}" onchange="updateScore(${s.id}, '${subject}', 'a1', this.value)" class="w-full max-w-[5rem] border border-slate-300 rounded px-2 py-1 text-sm font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </td>
+                    <td class="py-3 px-4">
+                        <input type="number" max="30" min="0" value="${m.a2}" onchange="updateScore(${s.id}, '${subject}', 'a2', this.value)" class="w-full max-w-[5rem] border border-slate-300 rounded px-2 py-1 text-sm font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </td>
+                    <td class="py-3 px-4">
+                        <input type="number" max="40" min="0" value="${m.exam}" onchange="updateScore(${s.id}, '${subject}', 'exam', this.value)" class="w-full max-w-[5rem] border border-slate-300 rounded px-2 py-1 text-sm font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </td>
+                    <td class="py-3 px-4 text-center font-extrabold text-slate-800 text-base">${total}</td>
+                    <td class="py-3 px-4 text-center"><span class="px-3 py-1 rounded-full text-xs font-bold ${gradeInfo.class}">Grade ${gradeInfo.letter}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateScore(studentId, subject, field, value) {
+            if (!marksData[studentId]) marksData[studentId] = {};
+            if (!marksData[studentId][subject]) marksData[studentId][subject] = { a1: 0, a2: 0, exam: 0 };
+            
+            marksData[studentId][subject][field] = Math.max(0, Number(value) || 0);
+            saveData();
+            renderMarksTable();
+        }
+
+        function saveCurrentMarks() {
+            saveData();
+            showToast('Assessment marks successfully saved!', 'success');
+        }
+
+        function populateReportGradeDropdown() {
+            const select = document.getElementById('reportGradeSelect');
+            select.innerHTML = '';
+            GRADES.forEach(g => {
+                select.innerHTML += `<option value="${g}">${g}</option>`;
+            });
+            populateReportStudentDropdown();
+        }
+
+        function populateReportStudentDropdown() {
+            const grade = document.getElementById('reportGradeSelect').value;
+            const select = document.getElementById('reportStudentSelect');
+            select.innerHTML = '';
+
+            const list = studentsData.filter(s => s.grade === grade);
+            if (list.length === 0) {
+                select.innerHTML = `<option value="">No students in this grade</option>`;
+                return;
+            }
+
+            list.forEach(s => {
+                select.innerHTML += `<option value="${s.id}">${s.name} (${s.adm})</option>`;
+            });
+
+            generateSelectedReportCard();
+        }
+
+        function generateSelectedReportCard() {
+            const studentId = document.getElementById('reportStudentSelect').value;
+            const area = document.getElementById('printableArea');
+
+            if (!studentId) {
+                area.innerHTML = `<div class="text-center py-12 text-slate-400">Select a student above to preview report card.</div>`;
+                return;
+            }
+
+            const student = studentsData.find(s => s.id == studentId);
+            const term = document.getElementById('reportTermSelect').value;
+            const isJSS = ['Grade 7', 'Grade 8', 'Grade 9'].includes(student.grade);
+
+            const sMarks = marksData[student.id] || {};
+
+            let subjectsList = isJSS ? [
+                'Mathematics', 'English', 'Kiswahili', 'Integrated Science', 
+                'Social Studies', 'Pre-Technical Studies', 'Creative Arts & Sports', 
+                'Religious Education', 'Agriculture & Nutrition'
+            ] : ['Mathematics', 'English', 'Kiswahili', 'Integrated Science', 'Social Studies'];
+
+            let rowsHtml = '';
+            let grandTotal = 0;
+
+            subjectsList.forEach(sub => {
+                const m = sMarks[sub] || { a1: 0, a2: 0, exam: 0 };
+                const total = (Number(m.a1)||0) + (Number(m.a2)||0) + (Number(m.exam)||0);
+                grandTotal += total;
+
+                const gradeInfo = calculateGradeLetter(total);
+
+                rowsHtml += `
+                    <tr class="border-b border-slate-200">
+                        <td class="py-2.5 px-3 font-medium text-slate-800">${sub}</td>
+                        <td class="py-2.5 px-3 text-center">${m.a1}</td>
+                        <td class="py-2.5 px-3 text-center">${m.a2}</td>
+                        <td class="py-2.5 px-3 text-center">${m.exam}</td>
+                        <td class="py-2.5 px-3 text-center font-bold text-slate-900">${total}</td>
+                        <td class="py-2.5 px-3 text-center font-bold text-xs"><span class="px-2 py-0.5 rounded ${gradeInfo.class}">${gradeInfo.letter}</span></td>
+                    </tr>
+                `;
+            });
+
+            const avgScore = subjectsList.length ? Math.round(grandTotal / subjectsList.length) : 0;
+            const overallGrade = calculateGradeLetter(avgScore);
+
+            area.innerHTML = `
+                <div class="border-b-2 border-brand-700 pb-4 text-center">
+                    <h1 class="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-wide">MUDOMA PRIMARY & JUNIOR SCHOOL</h1>
+                    <p class="text-xs font-semibold text-slate-600">P.O. BOX 104 - OFFICIAL ACADEMIC REPORT CARD</p>
+                    <p class="text-xs text-brand-700 font-bold mt-1 uppercase tracking-wider">STUDENT ACADEMIC PERFORMANCE REPORT</p>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs">
+                    <div>
+                        <span class="text-slate-400 block font-bold uppercase">Learner Name</span>
+                        <span class="font-extrabold text-slate-800 text-sm">${student.name}</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block font-bold uppercase">Admission No</span>
+                        <span class="font-extrabold text-brand-700 text-sm">${student.adm}</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block font-bold uppercase">Grade / Stream</span>
+                        <span class="font-bold text-slate-800 text-sm">${student.grade} (${student.stream || 'A'})</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block font-bold uppercase">Academic Term</span>
+                        <span class="font-bold text-slate-800 text-sm">${term}</span>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <h3 class="font-bold text-slate-800 text-sm mb-2 uppercase tracking-wide">Subject Performance Summary</h3>
+                    <table class="w-full text-xs text-left border-collapse border border-slate-200 min-w-[500px]">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700 uppercase font-bold border-b border-slate-200">
+                                <th class="py-2.5 px-3">Subject</th>
+                                <th class="py-2.5 px-3 text-center">Ass 1 (30)</th>
+                                <th class="py-2.5 px-3 text-center">Ass 2 (30)</th>
+                                <th class="py-2.5 px-3 text-center">Exam (40)</th>
+                                <th class="py-2.5 px-3 text-center">Total (100)</th>
+                                <th class="py-2.5 px-3 text-center">Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHtml}
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-slate-50 font-bold border-t border-slate-300">
+                                <td colspan="4" class="py-3 px-3 text-right uppercase text-slate-600">Mean Average Score:</td>
+                                <td class="py-3 px-3 text-center text-sm font-extrabold text-slate-900">${avgScore}%</td>
+                                <td class="py-3 px-3 text-center"><span class="px-2.5 py-1 rounded-full text-xs ${overallGrade.class}">Grade ${overallGrade.letter}</span></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-200 text-xs">
+                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                        <p class="font-bold text-slate-700 mb-1">Class Teacher Remarks:</p>
+                        <p class="italic text-slate-600">"${student.name} shows strong dedication across all subjects. Consistently completes assigned work and demonstrates steady academic progress."</p>
+                        <div class="mt-4 pt-2 border-t border-slate-300 flex justify-between text-[10px] text-slate-400">
+                            <span>Signature: _______________________</span>
+                            <span>Date: ${new Date().toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                        <p class="font-bold text-slate-700 mb-1">Headteacher Approval & Stamp:</p>
+                        <p class="italic text-slate-600">Approved for continued progress at Mudoma Primary & Junior School.</p>
+                        <div class="mt-4 pt-2 border-t border-slate-300 flex justify-between text-[10px] text-slate-400">
+                            <span>Official Stamp: [SEAL]</span>
+                            <span>Next Term Opens: May 2026</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- MODAL & ACTION HANDLERS ---
+        function openAddStudentModal() {
+            document.getElementById('studentForm').reset();
+            document.getElementById('editStudentId').value = '';
+            document.getElementById('studentModalTitle').innerText = 'Add New Student';
+            
+            const select = document.getElementById('modalStudentGrade');
+            select.innerHTML = '';
+            GRADES.forEach(g => {
+                select.innerHTML += `<option value="${g}">${g}</option>`;
+            });
+
+            document.getElementById('studentModal').classList.remove('hidden');
+        }
+
+        function closeStudentModal() {
+            document.getElementById('studentModal').classList.add('hidden');
+        }
+
+        function handleSaveStudent(e) {
+            e.preventDefault();
+            const editId = document.getElementById('editStudentId').value;
+            const name = document.getElementById('modalStudentName').value;
+            const adm = document.getElementById('modalStudentAdm').value;
+            const gender = document.getElementById('modalStudentGender').value;
+            const grade = document.getElementById('modalStudentGrade').value;
+            const stream = document.getElementById('modalStudentStream').value;
+            const parent = document.getElementById('modalParentName').value;
+            const phone = document.getElementById('modalParentPhone').value;
+
+            if (editId) {
+                const s = studentsData.find(item => item.id == editId);
+                if (s) {
+                    s.name = name; s.adm = adm; s.gender = gender;
+                    s.grade = grade; s.stream = stream; s.parent = parent; s.phone = phone;
+                }
+            } else {
+                const newId = Date.now();
+                studentsData.push({
+                    id: newId, adm, name, gender, grade, stream, parent, phone, paid: 0
+                });
+            }
+
+            saveData();
+            closeStudentModal();
+            showToast('Student profile saved successfully!', 'success');
+            
+            if (activeStudentGrade) renderStudentTable();
+            else renderStudentGradeCards();
+            updateDashboardStats();
+        }
+
+        function editStudent(id) {
+            const s = studentsData.find(item => item.id === id);
+            if (!s) return;
+
+            openAddStudentModal();
+            document.getElementById('studentModalTitle').innerText = 'Edit Student Profile';
+            document.getElementById('editStudentId').value = s.id;
+            document.getElementById('modalStudentName').value = s.name;
+            document.getElementById('modalStudentAdm').value = s.adm;
+            document.getElementById('modalStudentGender').value = s.gender;
+            document.getElementById('modalStudentGrade').value = s.grade;
+            document.getElementById('modalStudentStream').value = s.stream || '';
+            document.getElementById('modalParentName').value = s.parent || '';
+            document.getElementById('modalParentPhone').value = s.phone || '';
+        }
+
+        function deleteStudent(id) {
+            if (confirm('Are you sure you want to remove this student?')) {
+                studentsData = studentsData.filter(s => s.id !== id);
+                saveData();
+                renderStudentTable();
+                showToast('Student record removed', 'info');
+                updateDashboardStats();
+            }
+        }
+
+        function openPaymentModal() {
+            const select = document.getElementById('paymentStudentSelect');
+            select.innerHTML = '';
+            
+            studentsData.forEach(s => {
+                select.innerHTML += `<option value="${s.id}">${s.name} (${s.adm} - ${s.grade})</option>`;
+            });
+
+            document.getElementById('paymentModal').classList.remove('hidden');
+        }
+
+        function quickPay(studentId) {
+            openPaymentModal();
+            document.getElementById('paymentStudentSelect').value = studentId;
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').classList.add('hidden');
+        }
+
+        function handleSavePayment(e) {
+            e.preventDefault();
+            const studentId = document.getElementById('paymentStudentSelect').value;
+            const amount = Number(document.getElementById('paymentAmount').value) || 0;
+
+            const student = studentsData.find(s => s.id == studentId);
+            if (student) {
+                student.paid = (student.paid || 0) + amount;
+                saveData();
+                showToast(`Recorded payment of KSh ${amount.toLocaleString()} for ${student.name}`, 'success');
+            }
+
+            closePaymentModal();
+            if (activeFeeGrade) renderFeeTable();
+            else renderFeeGradeCards();
+            updateDashboardStats();
+        }
+
+        function updateDashboardStats() {
+            document.getElementById('dashTotalStudents').innerText = studentsData.length;
+            
+            const totalBilled = studentsData.reduce((acc, curr) => acc + getGradeFeeStructure(curr.grade), 0);
+            const totalCollected = studentsData.reduce((acc, curr) => acc + (curr.paid || 0), 0);
+            const totalBalance = Math.max(0, totalBilled - totalCollected);
+            const collectionRate = totalBilled > 0 ? Math.round((totalCollected / totalBilled) * 100) : 0;
+
+            document.getElementById('dashFeesBilled').innerText = `KSh ${totalBilled.toLocaleString()}`;
+            document.getElementById('dashFeesCollected').innerText = `KSh ${totalCollected.toLocaleString()}`;
+            document.getElementById('dashFeesBalance').innerText = `KSh ${totalBalance.toLocaleString()}`;
+            document.getElementById('dashCollectionRate').innerHTML = `<i class="fa-solid fa-check-circle"></i> ${collectionRate}% Collection Rate`;
+        }
+
+        function saveData() {
+            localStorage.setItem('mudoma_students', JSON.stringify(studentsData));
+            localStorage.setItem('mudoma_marks', JSON.stringify(marksData));
+            localStorage.setItem('mudoma_fees', JSON.stringify(feeStructures));
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `p-4 rounded-xl shadow-lg text-xs font-bold text-white flex items-center justify-between space-x-3 transition transform translate-y-2 pointer-events-auto ${type === 'success' ? 'bg-emerald-600' : 'bg-slate-800'}`;
+            toast.innerHTML = `<span>${message}</span><i class="fa-solid fa-xmark cursor-pointer" onclick="this.parentElement.remove()"></i>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        function triggerPWAInstall() {
+            showToast("Web App setup initialized! Launching offline application installer...", "success");
+        }
+
+        window.onload = function() {
+            switchTab('dashboard');
+            document.getElementById('currentDateDisplay').innerText = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        };
+    </script>
+</body>
+</html>
